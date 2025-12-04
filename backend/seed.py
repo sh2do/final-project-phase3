@@ -181,4 +181,6 @@ print(f"  - {len(anime_list)} anime")
 print(f"  - {len(user_list)} users")
 print(f"  - Sample collection items with ratings and notes")
 
+print("  - Sample collection items with ratings and notes")
+
 db.close()

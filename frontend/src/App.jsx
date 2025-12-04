@@ -3,7 +3,6 @@ import HomePage from "./pages/HomePage";
 import AnimeDetailsPage from "./pages/AnimeDetailsPage";
 import MyCollectionPage from "./pages/MyCollectionPage";
 import AddToCollectionPage from "./pages/AddToCollectionPage";
-import "./App.css";
 
 function App() {
   return (
