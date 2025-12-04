@@ -4,9 +4,11 @@ Integrates with AniList API to fetch anime data
 """
 
 import httpx
-import asyncio
-from typing import Optional, List, Dict, Any
+from typing import Dict, Any
 from ..schemas.anime import AnimeCreate
+
+# Import fallback mock service
+from . import mock_anime
 
 ANILIST_API_URL = "https://graphql.anilist.co"
 
@@ -169,7 +171,7 @@ async def search_anime(
     search_query: str, page: int = 1, per_page: int = 10
 ) -> Dict[str, Any]:
     """
-    Search for anime on AniList
+    Search for anime on AniList, with fallback to mock data
     
     Args:
         search_query: The anime title to search for
@@ -185,19 +187,24 @@ async def search_anime(
         "perPage": per_page,
     }
     
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            ANILIST_API_URL,
-            json={"query": SEARCH_ANIME_QUERY, "variables": variables},
-            timeout=10.0,
-        )
-        response.raise_for_status()
-        data = response.json()
-        
-        if "errors" in data:
-            raise Exception(f"AniList API Error: {data['errors']}")
-        
-        return data.get("data", {}).get("Page", {})
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.post(
+                ANILIST_API_URL,
+                json={"query": SEARCH_ANIME_QUERY, "variables": variables},
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            if "errors" in data:
+                error_msg = str(data.get("errors", "Unknown error"))
+                raise Exception(f"AniList API Error: {error_msg}")
+            
+            return data.get("data", {}).get("Page", {})
+    except (httpx.TimeoutException, httpx.HTTPError, Exception) as e:
+        # Fallback to mock data
+        print(f"AniList API error, using mock data: {str(e)}")
+        return mock_anime.search_mock_anime(search_query, page, per_page)
 
 
 async def get_anime_by_id(anime_id: int) -> Dict[str, Any]:
@@ -212,19 +219,24 @@ async def get_anime_by_id(anime_id: int) -> Dict[str, Any]:
     """
     variables = {"id": anime_id}
     
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            ANILIST_API_URL,
-            json={"query": GET_ANIME_BY_ID_QUERY, "variables": variables},
-            timeout=10.0,
-        )
-        response.raise_for_status()
-        data = response.json()
-        
-        if "errors" in data:
-            raise Exception(f"AniList API Error: {data['errors']}")
-        
-        return data.get("data", {}).get("Media", {})
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.post(
+                ANILIST_API_URL,
+                json={"query": GET_ANIME_BY_ID_QUERY, "variables": variables},
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            if "errors" in data:
+                error_msg = str(data.get("errors", "Unknown error"))
+                raise Exception(f"AniList API Error: {error_msg}")
+            
+            return data.get("data", {}).get("Media", {})
+    except httpx.TimeoutException as e:
+        raise Exception(f"Request timeout: {str(e)}")
+    except httpx.HTTPError as e:
+        raise Exception(f"HTTP error: {str(e)}")
 
 
 async def get_trending_anime(page: int = 1, per_page: int = 10) -> Dict[str, Any]:
@@ -243,19 +255,24 @@ async def get_trending_anime(page: int = 1, per_page: int = 10) -> Dict[str, Any
         "perPage": per_page,
     }
     
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            ANILIST_API_URL,
-            json={"query": TRENDING_ANIME_QUERY, "variables": variables},
-            timeout=10.0,
-        )
-        response.raise_for_status()
-        data = response.json()
-        
-        if "errors" in data:
-            raise Exception(f"AniList API Error: {data['errors']}")
-        
-        return data.get("data", {}).get("Page", {})
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.post(
+                ANILIST_API_URL,
+                json={"query": TRENDING_ANIME_QUERY, "variables": variables},
+            )
+            response.raise_for_status()
+            data = response.json()
+            
+            if "errors" in data:
+                error_msg = str(data.get("errors", "Unknown error"))
+                raise Exception(f"AniList API Error: {error_msg}")
+            
+            return data.get("data", {}).get("Page", {})
+    except httpx.TimeoutException as e:
+        raise Exception(f"Request timeout: {str(e)}")
+    except httpx.HTTPError as e:
+        raise Exception(f"HTTP error: {str(e)}")
 
 
 def parse_anilist_anime(anilist_data: Dict[str, Any]) -> AnimeCreate:

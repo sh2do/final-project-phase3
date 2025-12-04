@@ -5,6 +5,7 @@ Endpoints for searching and fetching anime from AniList
 
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
+import logging
 from ..services.anilist import (
     search_anime,
     get_anime_by_id,
@@ -36,7 +37,9 @@ async def search_anime_endpoint(
             "query": q,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        logging.error(f"Search error for '{q}': {error_msg}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {error_msg}")
 
 
 @router.get("/trending")
