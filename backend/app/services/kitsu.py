@@ -1,143 +1,92 @@
-"""
-Kitsu API Service
-Provides search and retrieval functions using Kitsu API (hummingbird/kitsu-api)
-"""
-
 import httpx
-from typing import Dict, Any
-from ..schemas.anime import AnimeCreate
+from typing import Dict, Any, Optional
+import asyncio
 
-KITSU_API_BASE = "https://kitsu.io/api/edge"
+# Kitsu API endpoint
+KITSU_API_URL = "https://kitsu.io/api/edge"
+
+
+async def _make_kitsu_request(endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Helper function to make requests to the Kitsu API."""
+    url = f"{KITSU_API_URL}/{endpoint}"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, params=params)
+        response.raise_for_status()
+        return response.json()
+
 
 async def search_anime(query: str, page: int = 1, per_page: int = 10) -> Dict[str, Any]:
-    """Search Kitsu for anime matching `query` and return a Page-like dict"""
-    # Kitsu uses offset-based paging; compute offset
-    limit = per_page
-    offset = (page - 1) * per_page
+    """Search for anime on Kitsu."""
     params = {
         "filter[text]": query,
-        "page[limit]": str(limit),
-        "page[offset]": str(offset),
+        "page[limit]": per_page,
+        "page[offset]": (page - 1) * per_page,
     }
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{KITSU_API_BASE}/anime", params=params, timeout=10.0)
-        resp.raise_for_status()
-        data = resp.json()
-
-    # Normalize response into Page-like structure similar to AniList Page
-    page_info = {
-        "total": None,
-        "perPage": limit,
-        "currentPage": page,
-        "lastPage": None,
-        "hasNextPage": len(data.get("data", [])) == limit,
-    }
-
-    media = []
-    for item in data.get("data", []):
-        attr = item.get("attributes", {})
-        media.append({
-            "id": int(item.get("id")),
-            "title": {
-                "romaji": attr.get("canonicalTitle"),
-                "english": attr.get("englishTitle") or attr.get("canonicalTitle"),
-                "native": attr.get("subtype"),
-            },
-            "description": attr.get("synopsis"),
-            "episodes": attr.get("episodeCount") or 0,
-            "seasonYear": attr.get("startDate")[:4] if attr.get("startDate") else None,
-            "format": attr.get("subtype"),
-            "genres": attr.get("genres", []),
-            "averageScore": attr.get("averageRating") and float(attr.get("averageRating")) or None,
-            "popularity": attr.get("popularityRank"),
-            "coverImage": {"large": (attr.get("posterImage") or {}).get("original")},
-            "bannerImage": attr.get("coverImage") and attr.get("coverImage").get("original"),
-        })
-
-    return {"pageInfo": page_info, "media": media}
+    data = await _make_kitsu_request("anime", params)
+    return data
 
 
-def parse_kitsu_anime(kitsu_data: Dict[str, Any]) -> AnimeCreate:
-    """
-    Convert Kitsu anime dict to AnimeCreate schema
-    """
-    title = kitsu_data.get("title", {})
-    cover = kitsu_data.get("coverImage", {}) or {}
-    description = kitsu_data.get("description") or ""
-    # strip HTML tags if any
-    import re
-    description = re.sub(r'<[^>]+>', '', description)
-
-    # try extract release year from seasonYear or startDate
-    release_year = kitsu_data.get("seasonYear") or None
-
-    return AnimeCreate(
-        title=title.get("english") or title.get("romaji") or "Unknown",
-        description=description,
-        episodes=kitsu_data.get("episodes") or 0,
-        release_year=release_year or 0,
-        image_url=cover.get("large", ""),
-    )
-
-
-async def get_anime_by_id(anime_id: int) -> Dict[str, Any]:
-    """Get anime details from Kitsu by ID"""
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{KITSU_API_BASE}/anime/{anime_id}", timeout=10.0)
-        resp.raise_for_status()
-        data = resp.json().get("data", {})
-
-    if not data:
-        return {}
-
-    attr = data.get("attributes", {})
-    return {
-        "id": int(data.get("id")),
-        "title": {
-            "romaji": attr.get("canonicalTitle"),
-            "english": attr.get("englishTitle") or attr.get("canonicalTitle"),
-            "native": None,
-        },
-        "description": attr.get("synopsis"),
-        "episodes": attr.get("episodeCount") or 0,
-        "seasonYear": attr.get("startDate")[:4] if attr.get("startDate") else None,
-        "format": attr.get("subtype"),
-        "genres": attr.get("genres", []),
-        "averageScore": attr.get("averageRating") and float(attr.get("averageRating")) or None,
-        "popularity": attr.get("popularityRank"),
-        "coverImage": {"large": (attr.get("posterImage") or {}).get("original")},
-        "bannerImage": attr.get("coverImage") and attr.get("coverImage").get("original"),
-    }
+async def get_anime_by_id(kitsu_id: int) -> Optional[Dict[str, Any]]:
+    """Get anime details from Kitsu by its Kitsu ID."""
+    data = await _make_kitsu_request(f"anime/{kitsu_id}")
+    return data.get("data")
 
 
 async def get_trending_anime(page: int = 1, per_page: int = 10) -> Dict[str, Any]:
-    """Get trending anime from Kitsu (by popularityRank)"""
-    limit = per_page
-    offset = (page - 1) * per_page
+    """Get trending anime from Kitsu."""
     params = {
-        "sort": "-popularityRank",
-        "page[limit]": str(limit),
-        "page[offset]": str(offset),
+        "sort": "-userCount", # Kitsu uses userCount for popularity/trending
+        "page[limit]": per_page,
+        "page[offset]": (page - 1) * per_page,
     }
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(f"{KITSU_API_BASE}/anime", params=params, timeout=10.0)
-        resp.raise_for_status()
-        data = resp.json()
+    data = await _make_kitsu_request("anime", params)
+    return data
 
-    media = []
-    for item in data.get("data", []):
-        attr = item.get("attributes", {})
-        media.append({
-            "id": int(item.get("id")),
-            "title": {
-                "romaji": attr.get("canonicalTitle"),
-                "english": attr.get("englishTitle") or attr.get("canonicalTitle"),
-            },
-            "description": attr.get("synopsis"),
-            "episodes": attr.get("episodeCount") or 0,
-            "seasonYear": attr.get("startDate")[:4] if attr.get("startDate") else None,
-            "coverImage": {"large": (attr.get("posterImage") or {}).get("original")},
-        })
 
-    page_info = {"perPage": limit, "currentPage": page, "hasNextPage": len(media) == limit}
-    return {"pageInfo": page_info, "media": media}
+def parse_kitsu_anime(anime_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Parses Kitsu anime data into a simplified, consistent format."""
+    attributes = anime_data.get("attributes", {})
+    return {
+        "external_id": anime_data.get("id"),
+        "title": attributes.get("titles", {{}}).get("en") or attributes.get("titles", {{}}).get("en_jp"),
+        "synopsis": attributes.get("synopsis"),
+        "episodes": attributes.get("episodeCount"),
+        "score": attributes.get("averageRating"), # Kitsu uses averageRating as a string, might need conversion
+        "image_url": attributes.get("posterImage", {{}}).get("large") or attributes.get("posterImage", {{}}).get("medium"),
+        "release_year": attributes.get("startDate", "").split('-')[0] if attributes.get("startDate") else None,
+        "source": "kitsu"
+    }
+
+
+if __name__ == "__main__":
+    async def test_search():
+        print("Searching for 'Naruto' on Kitsu...")
+        results = await search_anime("Naruto")
+        if results and results.get("data"):
+            for media_item in results["data"]:
+                print(f"- {parse_kitsu_anime(media_item)['title']} (ID: {media_item['id']})")
+                print(parse_kitsu_anime(media_item))
+        else:
+            print("No results found.")
+
+    async def test_get_by_id():
+        print("\nGetting details for Kitsu ID 12 (Cowboy Bebop)...")
+        anime_detail = await get_anime_by_id(12)
+        if anime_detail:
+            print(f"- Title: {parse_kitsu_anime(anime_detail)['title']}")
+            print(parse_kitsu_anime(anime_detail))
+        else:
+            print("No detail found.")
+    
+    async def test_trending():
+        print("\nGetting trending anime from Kitsu...")
+        results = await get_trending_anime()
+        if results and results.get("data"):
+            for media_item in results["data"]:
+                print(f"- {parse_kitsu_anime(media_item)['title']} (ID: {media_item['id']})")
+        else:
+            print("No results found.")
+
+    asyncio.run(test_search())
+    asyncio.run(test_get_by_id())
+    asyncio.run(test_trending())

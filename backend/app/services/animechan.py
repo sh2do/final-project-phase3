@@ -1,30 +1,46 @@
-"""
-Anime-chan integration (quotes)
-Provides simple quote fetching to enrich search results when available.
-Repo referenced: RocktimSaikia/anime-chan (API uses https://animechan.vercel.app)
-"""
-
 import httpx
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
+import asyncio
 
-ANIMECHAN_BASE = "https://animechan.vercel.app/api"
+ANIMECHAN_API_URL = "https://animechan.vercel.app/api"
 
-async def get_quotes_for_anime(query: str, limit: int = 3) -> List[Dict[str, Any]]:
-    """Fetch quotes for an anime title. Returns a list of quote dicts."""
-    params = {"title": query}
+
+async def get_quotes_for_anime(title: str) -> List[Dict[str, str]]:
+    """
+    Fetches random quotes for a given anime title from Animechan API.
+    """
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{ANIMECHAN_BASE}/quotes/anime", params=params, timeout=8.0)
-            resp.raise_for_status()
-            data = resp.json()
-            # The animechan endpoint may return a list of quotes
-            if isinstance(data, list):
-                return data[:limit]
-            # Some variants return object with 'quotes' key
-            if isinstance(data, dict) and "quotes" in data:
-                return data["quotes"][:limit]
-    except Exception:
-        # Fail silently and return empty list (non-critical enrichment)
-        return []
-
+            # The API uses 'anime' parameter, so we pass the title directly
+            response = await client.get(f"{ANIMECHAN_API_URL}/quotes/anime?title={title}")
+            response.raise_for_status()
+            quotes = response.json()
+            return quotes
+    except httpx.HTTPStatusError as e:
+        print(f"HTTP error fetching quotes for {title}: {e}")
+    except httpx.RequestError as e:
+        print(f"Request error fetching quotes for {title}: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred fetching quotes for {title}: {e}")
     return []
+
+
+if __name__ == "__main__":
+    async def test_quotes():
+        print("Fetching quotes for 'Naruto'...")
+        quotes = await get_quotes_for_anime("Naruto")
+        if quotes:
+            for quote in quotes[:3]: # Print first 3 quotes
+                print(f"- \"{quote.get('quote')}\" - {quote.get('character')} ({quote.get('anime')})")
+        else:
+            print("No quotes found.")
+
+        print("\nFetching quotes for 'Attack on Titan'...")
+        quotes = await get_quotes_for_anime("Attack on Titan")
+        if quotes:
+            for quote in quotes[:3]:
+                print(f"- \"{quote.get('quote')}\" - {quote.get('character')} ({quote.get('anime')})")
+        else:
+            print("No quotes found.")
+
+    asyncio.run(test_quotes())

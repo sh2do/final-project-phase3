@@ -1,358 +1,198 @@
-"""AniList GraphQL client (minimal).
-This service provides simple search and get by AniList id.
-"""
 import httpx
-from typing import Optional
+from typing import Dict, Any, Optional
+import asyncio
 
-GRAPHQL_URL = "https://graphql.anilist.co"
-
-SEARCH_QUERY = """
-query ($query: String, $page: Int) {
-  Page(page: $page, perPage: 10) {
-    media(search: $query, type: ANIME) {
-      id
-      idMal
-      title { romaji english }
-      description
-      episodes
-      coverImage { large }
-      averageScore
-    }
-  }
-}
-"""
-
-DETAIL_QUERY = """
-query ($id: Int) {
-  Media(id: $id, type: ANIME) {
-    id
-    idMal
-    title { romaji english }
-    description
-    episodes
-    coverImage { large }
-    averageScore
-  }
-}
-"""
-
-
-async def search_anilist(query: str, page: int = 1):
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        r = await client.post(GRAPHQL_URL, json={"query": SEARCH_QUERY, "variables": {"query": query, "page": page}})
-        r.raise_for_status()
-        data = r.json()
-        return data.get("data", {}).get("Page", {}).get("media", [])
-
-
-async def get_anilist(id: int):
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        r = await client.post(GRAPHQL_URL, json={"query": DETAIL_QUERY, "variables": {"id": id}})
-        r.raise_for_status()
-        data = r.json()
-        return data.get("data", {}).get("Media")
-"""
-AniList GraphQL API Service
-Integrates with AniList API to fetch anime data
-"""
-
-import httpx
-from typing import Dict, Any
-from ..schemas.anime import AnimeCreate
-
-# Import fallback mock service
-from . import mock_anime
-
+# AniList GraphQL API endpoint
 ANILIST_API_URL = "https://graphql.anilist.co"
 
-# GraphQL Queries
-SEARCH_ANIME_QUERY = """
-    query SearchAnime($search: String, $page: Int, $perPage: Int) {
-        Page(page: $page, perPage: $perPage) {
-            pageInfo {
-                total
-                perPage
-                currentPage
-                lastPage
-                hasNextPage
-            }
-            media(search: $search, type: ANIME) {
-                id
-                title {
-                    romaji
-                    english
-                    native
-                }
-                description
-                episodes
-                status
-                startDate {
-                    year
-                    month
-                    day
-                }
-                endDate {
-                    year
-                    month
-                    day
-                }
-                season
-                seasonYear
-                format
-                genres
-                averageScore
-                popularity
-                coverImage {
-                    large
-                    color
-                }
-                bannerImage
-                source
-                studios {
-                    edges {
-                        node {
-                            name
-                        }
-                    }
-                }
-            }
-        }
+# Kitsu API endpoint (for fallback)
+KITSU_API_URL = "https://kitsu.io/api/edge"
+
+# GraphQL query for AniList anime search
+ANILIST_SEARCH_QUERY = """
+query ($search: String, $page: Int, $perPage: Int) {
+  Page (page: $page, perPage: $perPage) {
+    pageInfo {
+      total
+      currentPage
+      lastPage
+      hasNextPage
+      perPage
     }
+    media (search: $search, type: ANIME, sort: SEARCH_MATCH) {
+      id
+      idMal
+      title {
+        romaji
+        english
+        native
+      }
+      coverImage {
+        extraLarge
+        large
+        medium
+        color
+      }
+      bannerImage
+      description(asHtml: false)
+      episodes
+      status
+      seasonYear
+      averageScore
+      meanScore
+      genres
+      siteUrl
+    }
+  }
+}
 """
 
-GET_ANIME_BY_ID_QUERY = """
-    query GetAnime($id: Int) {
-        Media(id: $id, type: ANIME) {
-            id
-            title {
-                romaji
-                english
-                native
-            }
-            description
-            episodes
-            status
-            startDate {
-                year
-                month
-                day
-            }
-            endDate {
-                year
-                month
-                day
-            }
-            season
-            seasonYear
-            format
-            genres
-            averageScore
-            popularity
-            coverImage {
-                large
-                color
-            }
-            bannerImage
-            source
-            studios {
-                edges {
-                    node {
-                        name
-                    }
-                }
-            }
-        }
+ANILIST_ANIME_DETAIL_QUERY = """
+query ($id: Int) {
+  Media (id: $id, type: ANIME) {
+    id
+    idMal
+    title {
+      romaji
+      english
+      native
     }
-"""
-
-TRENDING_ANIME_QUERY = """
-    query TrendingAnime($page: Int, $perPage: Int) {
-        Page(page: $page, perPage: $perPage) {
-            pageInfo {
-                total
-                perPage
-                currentPage
-                lastPage
-                hasNextPage
-            }
-            media(type: ANIME, sort: TRENDING_DESC, isAdult: false) {
-                id
-                title {
-                    romaji
-                    english
-                    native
-                }
-                description
-                episodes
-                status
-                startDate {
-                    year
-                    month
-                    day
-                }
-                endDate {
-                    year
-                    month
-                    day
-                }
-                season
-                seasonYear
-                format
-                genres
-                averageScore
-                popularity
-                coverImage {
-                    large
-                    color
-                }
-                bannerImage
-                source
-                studios {
-                    edges {
-                        node {
-                            name
-                        }
-                    }
-                }
-            }
-        }
+    coverImage {
+      extraLarge
+      large
+      medium
+      color
     }
+    bannerImage
+    description(asHtml: false)
+    episodes
+    status
+    seasonYear
+    averageScore
+    meanScore
+    genres
+    siteUrl
+    source
+    studios (isMain: true) {
+      nodes {
+        name
+      }
+    }
+  }
+}
 """
 
 
-async def search_anime(
-    search_query: str, page: int = 1, per_page: int = 10
-) -> Dict[str, Any]:
-    """
-    Search for anime on AniList, with fallback to mock data
-    
-    Args:
-        search_query: The anime title to search for
-        page: Page number for pagination
-        per_page: Number of results per page
-        
-    Returns:
-        Dictionary containing search results and pagination info
-    """
-    variables = {
-        "search": search_query,
-        "page": page,
-        "perPage": per_page,
-    }
-    
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.post(
-                ANILIST_API_URL,
-                json={"query": SEARCH_ANIME_QUERY, "variables": variables},
-            )
-            response.raise_for_status()
-            data = response.json()
-            
-            if "errors" in data:
-                error_msg = str(data.get("errors", "Unknown error"))
-                raise Exception(f"AniList API Error: {error_msg}")
-            
-            return data.get("data", {}).get("Page", {})
-    except (httpx.TimeoutException, httpx.HTTPError, Exception) as e:
-        # Fallback to mock data
-        print(f"AniList API error, using mock data: {str(e)}")
-        return mock_anime.search_mock_anime(search_query, page, per_page)
+async def _make_anilist_request(query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
+    """Helper function to make requests to the AniList GraphQL API."""
+    async with httpx.AsyncClient() as client:
+        response = await client.post(ANILIST_API_URL, json={"query": query, "variables": variables})
+        response.raise_for_status()
+        return response.json()
 
 
-async def get_anime_by_id(anime_id: int) -> Dict[str, Any]:
-    """
-    Get detailed anime information by AniList ID, with fallback to mock data
-    
-    Args:
-        anime_id: The AniList anime ID
-        
-    Returns:
-        Dictionary containing detailed anime information
-    """
-    variables = {"id": anime_id}
-    
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.post(
-                ANILIST_API_URL,
-                json={"query": GET_ANIME_BY_ID_QUERY, "variables": variables},
-            )
-            response.raise_for_status()
-            data = response.json()
-            
-            if "errors" in data:
-                error_msg = str(data.get("errors", "Unknown error"))
-                raise Exception(f"AniList API Error: {error_msg}")
-            
-            return data.get("data", {}).get("Media", {})
-    except (httpx.TimeoutException, httpx.HTTPError, Exception) as e:
-        # Fallback to mock data
-        print(f"AniList API error, using mock data: {str(e)}")
-        mock_result = mock_anime.get_mock_anime_by_id(anime_id)
-        return mock_result if mock_result else {}
+async def search_anime(query: str, page: int = 1, per_page: int = 10) -> Dict[str, Any]:
+    """Search for anime on AniList."""
+    variables = {"search": query, "page": page, "perPage": per_page}
+    data = await _make_anilist_request(ANILIST_SEARCH_QUERY, variables)
+    return data.get("data", {}).get("Page", {})
+
+
+async def get_anime_by_id(anilist_id: int) -> Optional[Dict[str, Any]]:
+    """Get anime details from AniList by its AniList ID."""
+    variables = {"id": anilist_id}
+    data = await _make_anilist_request(ANILIST_ANIME_DETAIL_QUERY, variables)
+    return data.get("data", {}).get("Media")
 
 
 async def get_trending_anime(page: int = 1, per_page: int = 10) -> Dict[str, Any]:
-    """
-    Get trending anime from AniList, with fallback to mock data
-    
-    Args:
-        page: Page number for pagination
-        per_page: Number of results per page
-        
-    Returns:
-        Dictionary containing trending anime and pagination info
-    """
-    variables = {
-        "page": page,
-        "perPage": per_page,
+    """Get trending anime from AniList (this might not be directly supported by a simple sort, requires careful query construction)."""
+    # AniList doesn't have a direct "trending" sort. A common approach is to sort by popularity descending
+    # for a recent season or overall. For simplicity, we'll use popularity here.
+    TRENDING_QUERY = """
+    query ($page: Int, $perPage: Int) {
+      Page (page: $page, perPage: $perPage) {
+        pageInfo {
+          total
+          currentPage
+          lastPage
+          hasNextPage
+          perPage
+        }
+        media (type: ANIME, sort: POPULARITY_DESC) {
+          id
+          idMal
+          title {
+            romaji
+            english
+            native
+          }
+          coverImage {
+            extraLarge
+            large
+            medium
+            color
+          }
+          bannerImage
+          description(asHtml: false)
+          episodes
+          status
+          seasonYear
+          averageScore
+          meanScore
+          genres
+          siteUrl
+        }
+      }
     }
-    
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.post(
-                ANILIST_API_URL,
-                json={"query": TRENDING_ANIME_QUERY, "variables": variables},
-            )
-            response.raise_for_status()
-            data = response.json()
-            
-            if "errors" in data:
-                error_msg = str(data.get("errors", "Unknown error"))
-                raise Exception(f"AniList API Error: {error_msg}")
-            
-            return data.get("data", {}).get("Page", {})
-    except (httpx.TimeoutException, httpx.HTTPError, Exception) as e:
-        # Fallback to mock data
-        print(f"AniList API error, using mock data: {str(e)}")
-        return mock_anime.get_trending_mock_anime(page, per_page)
+    """
+    variables = {"page": page, "perPage": per_page}
+    data = await _make_anilist_request(TRENDING_QUERY, variables)
+    return data.get("data", {}).get("Page", {})
 
 
-def parse_anilist_anime(anilist_data: Dict[str, Any]) -> AnimeCreate:
-    """
-    Convert AniList anime data to AnimeCreate schema
+def parse_anilist_anime(anime_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Parses AniList anime data into a simplified, consistent format."""
+    return {
+        "external_id": anime_data.get("id"),
+        "title": anime_data.get("title", {}).get("english") or anime_data.get("title", {}).get("romaji"),
+        "synopsis": anime_data.get("description"),
+        "episodes": anime_data.get("episodes"),
+        "score": anime_data.get("averageScore") or anime_data.get("meanScore"),
+        "image_url": anime_data.get("coverImage", {}).get("large") or anime_data.get("coverImage", {}).get("medium"),
+        "release_year": anime_data.get("seasonYear"),
+        "source": "anilist"
+    }
+
+if __name__ == "__main__":
+    async def test_search():
+        print("Searching for 'Attack on Titan' on AniList...")
+        results = await search_anime("Attack on Titan")
+        if results and results.get("media"):
+            for media_item in results["media"]:
+                print(f"- {media_item['title']['english'] or media_item['title']['romaji']} (ID: {media_item['id']})")
+                print(parse_anilist_anime(media_item))
+        else:
+            print("No results found.")
+
+    async def test_get_by_id():
+        print("\nGetting details for AniList ID 16498 (Attack on Titan S2)...")
+        anime_detail = await get_anime_by_id(16498)
+        if anime_detail:
+            print(f"- Title: {anime_detail['title']['english'] or anime_detail['title']['romaji']}")
+            print(parse_anilist_anime(anime_detail))
+        else:
+            print("No detail found.")
     
-    Args:
-        anilist_data: Raw data from AniList API
-        
-    Returns:
-        AnimeCreate schema object
-    """
-    title = anilist_data.get("title", {})
-    cover_image = anilist_data.get("coverImage", {})
-    
-    # Build description, fallback to empty string
-    description = anilist_data.get("description", "") or ""
-    
-    # Remove HTML tags if present
-    import re
-    description = re.sub(r'<[^>]+>', '', description)
-    
-    return AnimeCreate(
-        title=title.get("english") or title.get("romaji") or "Unknown",
-        description=description,
-        episodes=anilist_data.get("episodes") or 0,
-        release_year=anilist_data.get("seasonYear") or 0,
-        image_url=cover_image.get("large", "") if cover_image else "",
-    )
+    async def test_trending():
+        print("\nGetting trending anime from AniList...")
+        results = await get_trending_anime()
+        if results and results.get("media"):
+            for media_item in results["media"]:
+                print(f"- {media_item['title']['english'] or media_item['title']['romaji']} (ID: {media_item['id']})")
+        else:
+            print("No results found.")
+
+    asyncio.run(test_search())
+    asyncio.run(test_get_by_id())
+    asyncio.run(test_trending())

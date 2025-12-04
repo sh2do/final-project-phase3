@@ -1,48 +1,46 @@
-from sqlalchemy.orm import Session
-from app.models.anime import Anime
-from app.schemas.anime import AnimeCreate, AnimeUpdate
+from typing import List, Optional
+from sqlmodel import Session, select
+from app.models.anime import Anime, AnimeCreate, AnimeUpdate
 
 
-def get_all_anime(db: Session, skip: int = 0, limit: int = 100):
-    """Get all anime with pagination"""
-    return db.query(Anime).offset(skip).limit(limit).all()
+def get_anime_by_id(session: Session, anime_id: int) -> Optional[Anime]:
+    return session.get(Anime, anime_id)
 
 
-def get_anime(db: Session, anime_id: int):
-    """Get anime by ID"""
-    return db.query(Anime).filter(Anime.id == anime_id).first()
+def get_anime_by_external_id(session: Session, external_id: int) -> Optional[Anime]:
+    return session.exec(select(Anime).where(Anime.external_id == external_id)).first()
 
 
-def get_anime_by_id(db: Session, anime_id: int):
-    """Alias for get_anime"""
-    return get_anime(db, anime_id)
+def get_anime_list(session: Session, skip: int = 0, limit: int = 100) -> List[Anime]:
+    return session.exec(select(Anime).offset(skip).limit(limit)).all()
 
 
-def create_anime(db: Session, anime: AnimeCreate):
-    """Create a new anime"""
-    db_anime = Anime(**anime.model_dump())
-    db.add(db_anime)
-    db.commit()
-    db.refresh(db_anime)
+def create_anime(session: Session, anime_create: AnimeCreate) -> Anime:
+    db_anime = Anime.model_validate(anime_create) # Use model_validate for SQLModel Base
+    session.add(db_anime)
+    session.commit()
+    session.refresh(db_anime)
     return db_anime
 
 
-def update_anime(db: Session, anime_id: int, anime_update: AnimeUpdate):
-    """Update an anime"""
-    db_anime = get_anime(db, anime_id)
-    if db_anime:
-        update_data = anime_update.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(db_anime, key, value)
-        db.commit()
-        db.refresh(db_anime)
+def update_anime(session: Session, anime_id: int, anime_update: AnimeUpdate) -> Optional[Anime]:
+    db_anime = session.get(Anime, anime_id)
+    if not db_anime:
+        return None
+    
+    update_data = anime_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_anime, key, value)
+    
+    session.add(db_anime)
+    session.commit()
+    session.refresh(db_anime)
     return db_anime
 
 
-def delete_anime(db: Session, anime_id: int):
-    """Delete an anime"""
-    db_anime = get_anime(db, anime_id)
-    if db_anime:
-        db.delete(db_anime)
-        db.commit()
-    return db_anime
+def delete_anime(session: Session, anime_id: int) -> Optional[Anime]:
+    anime = session.get(Anime, anime_id)
+    if anime:
+        session.delete(anime)
+        session.commit()
+    return anime

@@ -5,43 +5,46 @@ from slowapi.util import get_remote_address
 from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import settings
-from app.database import init_db
-from app.routes import auth as auth_router
-from app.routes import anime as anime_router
-from app.routes import collection as collection_router
+from app.db.session import create_db_and_tables # Use the SQLModel init
+from app.api.v1.api import api_router # Import the new consolidated router
 
 
-def create_app() -> FastAPI:
-    app = FastAPI(title=settings.APP_NAME, version=settings.API_VERSION)
+# Initialize Limiter
+limiter = Limiter(key_func=get_remote_address)
 
-    # Rate limiter
-    limiter = Limiter(key_func=get_remote_address)
-    app.state.limiter = limiter
-    app.add_middleware(SlowAPIMiddleware)
 
-    app.add_middleware(
+def get_application() -> FastAPI:
+    application = FastAPI(
+        title=settings.PROJECT_NAME,
+        openapi_url=f"{settings.API_V1_STR}/openapi.json",
+        version="0.1.0"
+    )
+
+    # Add rate limiting middleware
+    application.state.limiter = limiter
+    application.add_middleware(SlowAPIMiddleware)
+
+    # Add CORS middleware
+    application.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.ALLOWED_ORIGINS,
+        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
-    # include routers
-    app.include_router(auth_router.router)
-    app.include_router(anime_router.router)
-    app.include_router(collection_router.router)
+    # Include the API router
+    application.include_router(api_router, prefix=settings.API_V1_STR)
 
-    @app.on_event("startup")
+    @application.on_event("startup")
     def on_startup():
-        init_db()
+        create_db_and_tables() # Create tables on startup
 
-    @app.get("/health")
+    @application.get("/health", tags=["health"])
     def health():
-        return {"status": "ok"}
+        return {"status": "ok", "message": "API is healthy!"}
 
-    return app
+    return application
 
 
-app = create_app()
-
+app = get_application()

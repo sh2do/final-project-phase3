@@ -1,29 +1,17 @@
-from pydantic import BaseModel
-from typing import Optional
-
-
-class AnimeOut(BaseModel):
-    id: int
-    title: Optional[str]
-    synopsis: Optional[str]
-    episodes: Optional[int]
-    score: Optional[float]
-    image_url: Optional[str]
-    source: Optional[str] = None  # 'anilist', 'jikan', 'mock'
-
-    class Config:
-        orm_mode = True
-from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from pydantic import BaseModel
 
 
 class AnimeBase(BaseModel):
     title: str
-    description: Optional[str] = None
+    external_id: Optional[int] = None
+    synopsis: Optional[str] = None
+    episodes: Optional[int] = None
+    score: Optional[float] = None
     image_url: Optional[str] = None
-    episodes: int
     release_year: Optional[int] = None
+    source: Optional[str] = None
 
 
 class AnimeCreate(AnimeBase):
@@ -32,16 +20,19 @@ class AnimeCreate(AnimeBase):
 
 class AnimeUpdate(BaseModel):
     title: Optional[str] = None
-    description: Optional[str] = None
-    image_url: Optional[str] = None
+    external_id: Optional[int] = None
+    synopsis: Optional[str] = None
     episodes: Optional[int] = None
+    score: Optional[float] = None
+    image_url: Optional[str] = None
     release_year: Optional[int] = None
+    source: Optional[str] = None
 
 
-class AnimeResponse(AnimeBase):
+class AnimePublic(AnimeBase):
     id: int
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime]
 
     class Config:
         from_attributes = True

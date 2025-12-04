@@ -1,43 +1,50 @@
-from pydantic import BaseModel, EmailStr
 from typing import Optional
+from datetime import datetime
+from pydantic import BaseModel, EmailStr
 
 
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
     email: EmailStr
+    username: Optional[str] = None
+
+
+class UserCreate(UserBase):
+    password: str
+
+
+class UserRegister(UserBase):
+    password: str
+
+
+class UserLogin(BaseModel):
+    email: Optional[EmailStr] = None
     username: Optional[str] = None
     password: str
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
-
-class TokenData(BaseModel):
-    user_id: Optional[int] = None
-from pydantic import BaseModel, EmailStr
-from typing import Optional
-from datetime import datetime
-
-
-class UserBase(BaseModel):
-    username: str
-    email: EmailStr
-
-
-class UserCreate(UserBase):
-    pass
-
-
 class UserUpdate(BaseModel):
-    username: Optional[str] = None
     email: Optional[EmailStr] = None
+    username: Optional[str] = None
+    password: Optional[str] = None
+    is_active: Optional[bool] = None
+    is_superuser: Optional[bool] = None
 
 
-class UserResponse(UserBase):
+class UserPublic(UserBase):
     id: int
+    is_active: bool
+    is_superuser: bool
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime]
 
     class Config:
         from_attributes = True
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenPayload(BaseModel):
+    sub: Optional[int] = None
