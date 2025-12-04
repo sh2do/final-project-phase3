@@ -1,14 +1,19 @@
-from fastapi import FastAPI, status
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import data
-from app.utils.errors import APIException
+from backend.app.db.database import engine, Base
+from backend.app.api.endpoints import anime, jikan
+from backend.app.db import models # Import models to ensure they are registered with Base.metadata
+
+# Create all database tables
+# For simplicity in local development, this creates tables on app startup.
+# In a production environment, you might use Alembic for database migrations.
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Anime Collection Tracker API",
-    description="A simple API for managing an anime collection.",
-    version="0.1.0",
+    description="API for tracking anime collection and integrating with Jikan API.",
+    version="1.0.0",
 )
 
 # Configure CORS for frontend interaction
@@ -27,16 +32,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API routes
-app.include_router(data.router, prefix="/api", tags=["data"])
-
-# Custom exception handler for APIException
-@app.exception_handler(APIException)
-async def api_exception_handler(request, exc: APIException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail},
-    )
+# Include API routers
+app.include_router(anime.router, prefix="/api/anime", tags=["anime"])
+app.include_router(jikan.router, prefix="/api/jikan", tags=["jikan"])
 
 @app.get("/", summary="Root endpoint")
 async def root():
