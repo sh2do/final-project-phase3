@@ -203,7 +203,7 @@ routes/anime.js → animeController.searchAnime()
          ↓
 controller calls: jikan.searchAnime("Demon Slayer", 1)
          ↓
-jikan.js sends: axios.get("https://api.jikan.moe/v4/anime", 
+jikan.js sends: axios.get("https://api.jikan.moe/v4/anime",
                 { params: { query: "Demon Slayer", ... } })
          ↓
 Jikan API returns anime array

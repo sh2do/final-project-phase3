@@ -26,7 +26,10 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  const apiMode = process.env.USE_MOCK_API !== "false" ? "⚡ MOCK API (FAST)" : "🌐 JIKAN API (REAL)";
+  const apiMode =
+    process.env.USE_MOCK_API !== "false"
+      ? "⚡ MOCK API (FAST)"
+      : "🌐 JIKAN API (REAL)";
   console.log(`\n🚀 Backend running at http://localhost:${PORT}`);
   console.log(`📍 API: ${apiMode}`);
   console.log(`🌐 Frontend: http://localhost:5173\n`);

@@ -16,27 +16,27 @@ exports.searchAnime = async (req, res) => {
     }
 
     console.log(`📝 Controller: Searching for "${q}"`);
-    
+
     let data;
     if (USE_MOCK_API) {
       console.log(`⚡ Using MOCK API (instant)`);
       const results = searchMockAnime(q);
       data = {
         data: results,
-        pagination: { last_visible_page: 1, has_next_page: false }
+        pagination: { last_visible_page: 1, has_next_page: false },
       };
     } else {
       console.log(`🌐 Using JIKAN API (slower)`);
       data = await searchAnime(q, page);
     }
-    
+
     console.log(`📤 Controller: Returning ${data.data?.length || 0} results`);
     res.json(data);
   } catch (error) {
     console.error("🚨 Search error:", error.message);
-    res.status(500).json({ 
+    res.status(500).json({
       error: error.message,
-      details: "Check backend console for more info"
+      details: "Check backend console for more info",
     });
   }
 };
@@ -52,7 +52,7 @@ exports.getAnimeById = async (req, res) => {
     }
 
     console.log(`📝 Controller: Fetching anime ${id}`);
-    
+
     let data;
     if (USE_MOCK_API) {
       console.log(`⚡ Using MOCK API (instant)`);
@@ -65,14 +65,14 @@ exports.getAnimeById = async (req, res) => {
       console.log(`🌐 Using JIKAN API (slower)`);
       data = await getAnimeById(id);
     }
-    
+
     console.log(`📤 Controller: Returning anime details`);
     res.json(data);
   } catch (error) {
     console.error("🚨 Detail error:", error.message);
-    res.status(500).json({ 
+    res.status(500).json({
       error: error.message,
-      details: "Check backend console for more info"
+      details: "Check backend console for more info",
     });
   }
 };

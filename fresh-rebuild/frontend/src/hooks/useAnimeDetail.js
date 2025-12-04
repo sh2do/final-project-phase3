@@ -19,7 +19,7 @@ export function useAnimeDetail(id) {
         const url = `${API_URL}/anime/${id}`;
         const response = await fetch(url);
         console.log(`📥 Response status: ${response.status}`);
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || `HTTP ${response.status}`);

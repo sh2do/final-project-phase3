@@ -15,6 +15,7 @@ Your app uses **Jikan API** which is completely **free and requires no authentic
 ### 🚀 How It Works
 
 **Backend Flow:**
+
 ```
 1. Frontend sends: GET /api/anime?q=Demon Slayer
 2. Backend receives request in routes/anime.js
@@ -24,6 +25,7 @@ Your app uses **Jikan API** which is completely **free and requires no authentic
 ```
 
 **Frontend Flow:**
+
 ```
 1. User types in search box
 2. useAnimeSearch hook calls: fetch("http://localhost:5000/api/anime?q=...")
@@ -40,26 +42,32 @@ Your app uses **Jikan API** which is completely **free and requires no authentic
 **Checklist:**
 
 1. **Backend running?**
+
    ```bash
    # Terminal 1
    cd fresh-rebuild/backend
    npm run dev
    ```
+
    Should see: `🚀 Backend running at http://localhost:5000`
 
 2. **Frontend running?**
+
    ```bash
    # Terminal 2
    cd fresh-rebuild/frontend
    npm run dev
    ```
+
    Should see: `Local: http://localhost:5173/`
 
 3. **Check browser console** (F12)
+
    - Look for exact error message
    - Should show which API endpoint failed
 
 4. **Check backend console**
+
    - Shows logs with 🔍 🎬 ✅ ❌ emojis
    - Look for error details
 
@@ -77,11 +85,13 @@ Your app uses **Jikan API** which is completely **free and requires no authentic
 This means the API worked but no results matched your search.
 
 **Try:**
+
 - Different anime name (e.g., "Naruto", "One Piece", "Demon Slayer")
 - Shorter search terms (e.g., "anime" instead of "very specific anime")
 - Check spelling
 
 **Known working searches:**
+
 - Demon Slayer
 - Attack on Titan
 - Naruto
@@ -97,6 +107,7 @@ This means the API worked but no results matched your search.
 If you get `EADDRINUSE` error:
 
 **Find what's using the port:**
+
 ```bash
 # For backend (port 5000)
 lsof -i :5000
@@ -106,6 +117,7 @@ lsof -i :5173
 ```
 
 **Kill the process:**
+
 ```bash
 # Replace <PID> with the number from above
 kill -9 <PID>
@@ -132,6 +144,7 @@ If you see `❌ Jikan API error` in backend console:
 3. **Check timeout** - Backend has 10 second timeout, Jikan might be slow
 
 **Backend logs show:**
+
 ```
 🔍 Searching for: Demon Slayer (page 1)
 ❌ Jikan API error: timeout of 10000ms exceeded
@@ -153,6 +166,7 @@ The backend now logs everything with emojis:
 ```
 
 **Error logs:**
+
 ```
 ⚠️ Missing search query              ← Client forgot to send query
 ❌ Jikan API error: ...              ← Jikan API failed
@@ -172,6 +186,7 @@ To see detailed logs:
    - Shows response status codes
 
 **Example frontend console output:**
+
 ```
 🔍 Frontend: Searching for "Demon Slayer"
 📡 Fetching from: http://localhost:5000/api/anime?q=Demon%20Slayer
@@ -184,6 +199,7 @@ To see detailed logs:
 ## 🌐 API Endpoints Reference
 
 ### Search Anime
+
 ```
 GET /api/anime?q=<search_term>&page=<page_number>
 
@@ -209,6 +225,7 @@ Response:
 ```
 
 ### Get Anime Details
+
 ```
 GET /api/anime/<anime_id>
 
@@ -243,6 +260,7 @@ Response:
 3. **Want to cache results?** - Add localStorage in frontend hooks
 
 4. **Want to add filters?** - Jikan API supports:
+
    ```
    ?status=airing
    ?type=tv

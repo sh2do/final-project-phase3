@@ -7,6 +7,7 @@ Your anime tracker now uses **Jikan API** - a free, auth-less anime database API
 ### Changes Made:
 
 1. **Backend Improvements**
+
    - ✅ Added timeout (10 seconds) to API calls
    - ✅ Added User-Agent header for better compatibility
    - ✅ Added sort by score (best results first)
@@ -14,6 +15,7 @@ Your anime tracker now uses **Jikan API** - a free, auth-less anime database API
    - ✅ Added detailed console logging with emojis
 
 2. **Frontend Improvements**
+
    - ✅ Better error messages displayed to users
    - ✅ Detailed console logging for debugging
    - ✅ Handles empty results properly
@@ -33,7 +35,7 @@ Your anime tracker now uses **Jikan API** - a free, auth-less anime database API
 cd fresh-rebuild/backend
 npm run dev
 
-# Terminal 2 - Frontend  
+# Terminal 2 - Frontend
 cd fresh-rebuild/frontend
 npm run dev
 
@@ -46,16 +48,19 @@ http://localhost:5173
 ## 🔍 How the API Works
 
 ### Jikan API (Free, No Auth Required)
+
 - **Source**: https://api.jikan.moe/v4
 - **Data**: Complete anime database with 20,000+ titles
 - **Features**: Search, details, genres, ratings, episodes, images
 - **Authentication**: None needed! It's completely public.
 
 ### Your Backend Routes
+
 - `GET /api/anime?q=<search>` - Search anime
 - `GET /api/anime/<id>` - Get anime details
 
 ### Data Flow
+
 ```
 User types in search
     ↓
@@ -93,6 +98,7 @@ User clicks card → DetailPage loads full anime info
 ## 🧪 Testing
 
 ### Quick Test
+
 ```bash
 # Make sure backend is running, then in another terminal:
 bash QUICK_FIX.sh
@@ -100,6 +106,7 @@ bash QUICK_FIX.sh
 ```
 
 ### Manual Test
+
 ```bash
 # Search anime
 curl "http://localhost:5000/api/anime?q=Demon%20Slayer"
@@ -109,6 +116,7 @@ curl "http://localhost:5000/api/anime/38480"
 ```
 
 ### Try These Searches
+
 - Demon Slayer
 - Attack on Titan
 - Naruto
@@ -139,6 +147,7 @@ curl "http://localhost:5000/api/anime/38480"
 ## 📊 Technical Details
 
 ### Backend Stack
+
 - Express.js (lightweight, fast)
 - Jikan API integration
 - CORS enabled for frontend
@@ -146,6 +155,7 @@ curl "http://localhost:5000/api/anime/38480"
 - Logging with emojis for easy reading
 
 ### Frontend Stack
+
 - React with hooks
 - Custom hooks for data fetching
 - Error states and loading states
@@ -153,6 +163,7 @@ curl "http://localhost:5000/api/anime/38480"
 - React Router for navigation
 
 ### Why Jikan API?
+
 ✅ **Free** - No cost
 ✅ **No Auth** - No API keys needed
 ✅ **Reliable** - Well-maintained
@@ -166,6 +177,7 @@ curl "http://localhost:5000/api/anime/38480"
 Your app is now **fully functional** with proper API integration, error handling, and logging.
 
 Start with:
+
 ```bash
 cd fresh-rebuild/backend && npm run dev  # Terminal 1
 cd fresh-rebuild/frontend && npm run dev # Terminal 2 (new)
@@ -177,11 +189,13 @@ cd fresh-rebuild/frontend && npm run dev # Terminal 2 (new)
 ---
 
 ### Files Modified
+
 - `backend/utils/jikan.js` - Enhanced with timeout, headers, sorting
 - `backend/controllers/animeController.js` - Better error handling
 - `backend/server.js` - Already good, no changes needed
 
 ### Files Added
+
 - `JIKAN_API_GUIDE.md` - Troubleshooting guide
 - `QUICK_FIX.sh` - Automated fixes
 - `TEST_API.sh` - API testing script

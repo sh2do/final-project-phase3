@@ -6,12 +6,12 @@ By default, your app now uses a **mock API** that returns instant results (no wa
 
 ### ⚡ Performance Comparison
 
-| Feature | Mock API | Jikan API |
-|---------|----------|-----------|
-| **Response Time** | ⚡ <5ms | 🐌 2-5 seconds |
-| **Reliability** | ✅ 100% (local) | ✅ 99% (internet dependent) |
-| **Data Size** | 📦 10 anime | 📚 30,000+ anime |
-| **When to Use** | 👍 Development, demos | 👍 Production, full data |
+| Feature           | Mock API              | Jikan API                   |
+| ----------------- | --------------------- | --------------------------- |
+| **Response Time** | ⚡ <5ms               | 🐌 2-5 seconds              |
+| **Reliability**   | ✅ 100% (local)       | ✅ 99% (internet dependent) |
+| **Data Size**     | 📦 10 anime           | 📚 30,000+ anime            |
+| **When to Use**   | 👍 Development, demos | 👍 Production, full data    |
 
 ---
 
@@ -31,6 +31,7 @@ The mock API comes with 10 popular anime:
 10. **Sword Art Online** - Action/Fantasy
 
 Each includes:
+
 - Title, synopsis, genres
 - Episode count, score, air dates
 - Poster images (from Jikan)
@@ -43,6 +44,7 @@ Each includes:
 ### Use Mock API (Default - FAST) ⚡
 
 Your `.env` already has this set:
+
 ```
 USE_MOCK_API=true
 ```
@@ -52,11 +54,13 @@ USE_MOCK_API=true
 ### Use Jikan API (Real Data - Slow) 🌐
 
 Edit `backend/.env`:
+
 ```
 USE_MOCK_API=false
 ```
 
 Then restart the backend:
+
 ```bash
 cd backend
 npm run dev
@@ -69,8 +73,9 @@ npm run dev
 ### Search Flow
 
 **With Mock API (Default):**
+
 ```
-User searches → 
+User searches →
   Frontend sends GET /api/anime?q=...  →
     Backend checks USE_MOCK_API=true →
       Returns instant mock results (< 5ms) →
@@ -78,6 +83,7 @@ User searches →
 ```
 
 **With Jikan API:**
+
 ```
 User searches →
   Frontend sends GET /api/anime?q=... →
@@ -92,6 +98,7 @@ User searches →
 ## 🧪 Testing
 
 ### Test Mock API (Instant)
+
 ```bash
 # Backend is running on port 5000
 
@@ -102,6 +109,7 @@ curl "http://localhost:5000/api/anime?q=demon"
 ```
 
 ### Test Jikan API (Slow)
+
 1. Edit `backend/.env` → `USE_MOCK_API=false`
 2. Restart backend: `npm run dev`
 3. Try searching
@@ -114,6 +122,7 @@ curl "http://localhost:5000/api/anime?q=demon"
 You'll see different logs depending on which API is active:
 
 ### Mock API (Default)
+
 ```
 📝 Controller: Searching for "Demon"
 ⚡ Using MOCK API (instant)
@@ -121,6 +130,7 @@ You'll see different logs depending on which API is active:
 ```
 
 ### Jikan API
+
 ```
 📝 Controller: Searching for "Demon"
 🌐 Using JIKAN API (slower)
@@ -134,6 +144,7 @@ You'll see different logs depending on which API is active:
 ## 💡 When to Use Which
 
 ### ✅ Use Mock API if:
+
 - 🎨 You're designing/testing the UI
 - 🚀 You want instant feedback
 - 🔴 Jikan API is slow/down
@@ -142,6 +153,7 @@ You'll see different logs depending on which API is active:
 - 💰 You want to avoid rate limits
 
 ### ✅ Use Jikan API if:
+
 - 📚 You need more anime than 10
 - 🌐 You want real/latest data
 - 🎓 You're in production
@@ -186,6 +198,7 @@ Edit `backend/services/mockAnime.js`:
 ## ⚙️ Implementation Details
 
 The mock API is implemented as:
+
 - **File**: `backend/services/mockAnime.js`
 - **Controller**: Updated `backend/controllers/animeController.js`
 - **Toggle**: Environment variable `USE_MOCK_API`
