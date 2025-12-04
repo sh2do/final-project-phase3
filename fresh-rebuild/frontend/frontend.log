@@ -1,0 +1,27 @@
+
+> anime-tracker-frontend@1.0.0 dev
+> vite
+
+Port 5173 is in use, trying another one...
+Port 5174 is in use, trying another one...
+
+  VITE v5.4.21  ready in 560 ms
+
+  ➜  Local:   http://localhost:5175/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+node:internal/process/promises:332
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+[Failed to load PostCSS config: Failed to load PostCSS config (searchPath: /Users/jeffthanduru/Code/dev/phase-3/anime-collection-tracker/final-project-phase3/fresh-rebuild/frontend): [ReferenceError] module is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and '/Users/jeffthanduru/Code/dev/phase-3/anime-collection-tracker/final-project-phase3/fresh-rebuild/frontend/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+ReferenceError: module is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and '/Users/jeffthanduru/Code/dev/phase-3/anime-collection-tracker/final-project-phase3/fresh-rebuild/frontend/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at file:///Users/jeffthanduru/Code/dev/phase-3/anime-collection-tracker/final-project-phase3/fresh-rebuild/frontend/postcss.config.js:1:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:654:26)
+    at async importDefault (file:///Users/jeffthanduru/Code/dev/phase-3/anime-collection-tracker/final-project-phase3/fresh-rebuild/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:33759:18)
+    at async Object.search (file:///Users/jeffthanduru/Code/dev/phase-3/anime-collection-tracker/final-project-phase3/fresh-rebuild/frontend/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:25915:23)]
+
+Node.js v25.2.1

@@ -5,12 +5,14 @@
 Your anime tracker now has **2 API options** to choose from:
 
 ### ⚡ Mock API (Default - ENABLED NOW)
+
 - **Speed**: Instant (< 5ms)
 - **Data**: 10 popular anime
 - **Perfect for**: Development, demos, testing
 - **Status**: ✅ Ready to use right now!
 
 ### 🌐 Jikan API (Real Data - Switch Anytime)
+
 - **Speed**: 2-5 seconds per search
 - **Data**: 30,000+ anime titles
 - **Perfect for**: Production, full database
@@ -40,12 +42,12 @@ npm run dev
 
 ## ⚡ Speed Comparison
 
-| When Searching | Before | Now |
-|---|---|---|
-| User types "Demon" | ⏳ 2-5 seconds | ⚡ Instant |
-| Click anime card | ⏳ 2-5 seconds | ⚡ Instant |
-| Load details | ⏳ 2-5 seconds | ⚡ Instant |
-| **Total time** | 🐌 10-15s | ✨ < 1 second |
+| When Searching     | Before         | Now           |
+| ------------------ | -------------- | ------------- |
+| User types "Demon" | ⏳ 2-5 seconds | ⚡ Instant    |
+| Click anime card   | ⏳ 2-5 seconds | ⚡ Instant    |
+| Load details       | ⏳ 2-5 seconds | ⚡ Instant    |
+| **Total time**     | 🐌 10-15s      | ✨ < 1 second |
 
 ---
 
@@ -71,6 +73,7 @@ Try searching for any of these - results appear instantly! ⚡
 ## 🔄 How to Switch APIs
 
 ### Use Mock API (Fast - Currently On)
+
 ```bash
 # Edit: backend/.env
 USE_MOCK_API=true
@@ -80,6 +83,7 @@ cd backend && npm run dev
 ```
 
 ### Use Jikan API (Real Data - Slower)
+
 ```bash
 # Edit: backend/.env
 USE_MOCK_API=false
@@ -89,11 +93,13 @@ cd backend && npm run dev
 ```
 
 ### Use the Switcher Script
+
 ```bash
 bash SWITCH_API.sh
 ```
 
 Then choose:
+
 - Option 1: Mock API
 - Option 2: Jikan API
 - Option 3: Show status
@@ -103,12 +109,14 @@ Then choose:
 ## 📂 Files Created/Modified
 
 ### New Files
+
 - ✅ `backend/services/mockAnime.js` - Mock anime database
 - ✅ `FAST_MOCK_API.md` - Complete guide
 - ✅ `SWITCH_API.sh` - Easy API switcher
 - ✅ `API_STATUS.sh` - Show current API mode
 
 ### Modified Files
+
 - ✅ `backend/.env` - Added `USE_MOCK_API=true`
 - ✅ `backend/controllers/animeController.js` - Added mock API support
 - ✅ `backend/server.js` - Shows which API is active
@@ -118,18 +126,23 @@ Then choose:
 ## 🧪 Test It
 
 ### Test Search (Instant)
+
 ```bash
 curl "http://localhost:5000/api/anime?q=demon"
 ```
+
 Should return instantly!
 
 ### Test Details (Instant)
+
 ```bash
 curl "http://localhost:5000/api/anime/38480"
 ```
+
 Should return instantly!
 
 ### Backend Logs Show
+
 ```
 📝 Controller: Searching for "demon"
 ⚡ Using MOCK API (instant)
@@ -141,18 +154,21 @@ Should return instantly!
 ## 💡 Pro Tips
 
 ### For Development/Demos
+
 ✅ Keep Mock API enabled (faster workflow)
 ✅ 10 anime is enough for testing UI
 ✅ No network delays, no waiting
 ✅ Works completely offline
 
 ### For Production/Real Data
+
 ✅ Switch to Jikan API
 ✅ Get access to full anime database
 ✅ Real, up-to-date information
 ✅ All 30,000+ anime available
 
 ### Want More Mock Anime?
+
 Edit `backend/services/mockAnime.js` and add more anime objects!
 
 ---
@@ -178,11 +194,13 @@ Edit `backend/services/mockAnime.js` and add more anime objects!
 ## 🚀 Next Steps
 
 1. Start your backend:
+
    ```bash
    cd fresh-rebuild/backend && npm run dev
    ```
 
 2. Start your frontend:
+
    ```bash
    cd fresh-rebuild/frontend && npm run dev
    ```

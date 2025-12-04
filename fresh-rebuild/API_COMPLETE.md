@@ -7,11 +7,13 @@ I've created a **lightning-fast mock API** that returns instant results instead 
 ### ⚡ Before vs After
 
 **Before (Jikan API):**
+
 - Search: 2-5 seconds ⏳
 - Load details: 2-5 seconds ⏳
 - Total: 10-15 seconds per action 🐌
 
 **After (Mock API - Default):**
+
 - Search: < 100ms ⚡
 - Load details: < 100ms ⚡
 - Total: Instant! 🚀
@@ -21,25 +23,32 @@ I've created a **lightning-fast mock API** that returns instant results instead 
 ## 📦 What Was Added
 
 ### 1. Mock Anime Database
+
 **File**: `backend/services/mockAnime.js`
+
 - 10 popular anime hardcoded
 - Instant search/lookup
 - No network calls
 
 ### 2. Smart API Switcher
+
 **File**: `backend/controllers/animeController.js`
+
 - Reads `USE_MOCK_API` from `.env`
 - Uses mock if `true` (default)
 - Uses Jikan if `false`
 - No code changes needed to switch!
 
 ### 3. Environment Config
+
 **File**: `backend/.env`
+
 - Added: `USE_MOCK_API=true`
 - Default: Use fast mock API
 - Easy to change anytime
 
 ### 4. Documentation & Tools
+
 - `FAST_MOCK_API.md` - Complete guide
 - `FAST_API_READY.md` - Quick start
 - `SWITCH_API.sh` - Change API mode
@@ -51,6 +60,7 @@ I've created a **lightning-fast mock API** that returns instant results instead 
 ## 🚀 How to Use
 
 ### Run Right Now
+
 ```bash
 # Terminal 1
 cd fresh-rebuild/backend
@@ -64,9 +74,11 @@ npm run dev
 ```
 
 ### Search Something
+
 Type "Demon Slayer" and watch it load **instantly**! ⚡
 
 ### Available Anime to Search
+
 1. Demon Slayer
 2. Attack on Titan
 3. Naruto
@@ -83,6 +95,7 @@ Type "Demon Slayer" and watch it load **instantly**! ⚡
 ## 🔄 Switch to Real API (If Needed)
 
 ### Option 1: Edit `.env`
+
 ```bash
 # backend/.env
 USE_MOCK_API=false
@@ -90,6 +103,7 @@ USE_MOCK_API=false
 ```
 
 ### Option 2: Use Script
+
 ```bash
 bash SWITCH_API.sh
 # Choose option 2 for Jikan API
@@ -101,6 +115,7 @@ bash SWITCH_API.sh
 ## 📊 Technical Details
 
 ### How It Works
+
 ```
 User searches "Demon Slayer"
     ↓
@@ -118,12 +133,14 @@ Display instantly ✨
 ```
 
 ### No Network Calls
+
 - Mock API: Works 100% locally
 - No internet needed
 - No rate limits
 - No delays
 
 ### Fallback Still Available
+
 - If you need more anime
 - Set `USE_MOCK_API=false`
 - Use real Jikan API (slower but comprehensive)
@@ -143,6 +160,7 @@ Display instantly ✨
 ## 📁 File Changes Summary
 
 ### Files Created
+
 ```
 backend/services/mockAnime.js        (248 lines - anime data)
 FAST_MOCK_API.md                      (Complete guide)
@@ -153,6 +171,7 @@ GO.sh                                 (Quick start script)
 ```
 
 ### Files Modified
+
 ```
 backend/.env                          (Added USE_MOCK_API=true)
 backend/controllers/animeController.js (Added mock support)
