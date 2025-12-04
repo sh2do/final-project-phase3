@@ -209,7 +209,7 @@ async def search_anime(
 
 async def get_anime_by_id(anime_id: int) -> Dict[str, Any]:
     """
-    Get detailed anime information by AniList ID
+    Get detailed anime information by AniList ID, with fallback to mock data
     
     Args:
         anime_id: The AniList anime ID
@@ -233,15 +233,16 @@ async def get_anime_by_id(anime_id: int) -> Dict[str, Any]:
                 raise Exception(f"AniList API Error: {error_msg}")
             
             return data.get("data", {}).get("Media", {})
-    except httpx.TimeoutException as e:
-        raise Exception(f"Request timeout: {str(e)}")
-    except httpx.HTTPError as e:
-        raise Exception(f"HTTP error: {str(e)}")
+    except (httpx.TimeoutException, httpx.HTTPError, Exception) as e:
+        # Fallback to mock data
+        print(f"AniList API error, using mock data: {str(e)}")
+        mock_result = mock_anime.get_mock_anime_by_id(anime_id)
+        return mock_result if mock_result else {}
 
 
 async def get_trending_anime(page: int = 1, per_page: int = 10) -> Dict[str, Any]:
     """
-    Get trending anime from AniList
+    Get trending anime from AniList, with fallback to mock data
     
     Args:
         page: Page number for pagination
@@ -269,10 +270,10 @@ async def get_trending_anime(page: int = 1, per_page: int = 10) -> Dict[str, Any
                 raise Exception(f"AniList API Error: {error_msg}")
             
             return data.get("data", {}).get("Page", {})
-    except httpx.TimeoutException as e:
-        raise Exception(f"Request timeout: {str(e)}")
-    except httpx.HTTPError as e:
-        raise Exception(f"HTTP error: {str(e)}")
+    except (httpx.TimeoutException, httpx.HTTPError, Exception) as e:
+        # Fallback to mock data
+        print(f"AniList API error, using mock data: {str(e)}")
+        return mock_anime.get_trending_mock_anime(page, per_page)
 
 
 def parse_anilist_anime(anilist_data: Dict[str, Any]) -> AnimeCreate:
