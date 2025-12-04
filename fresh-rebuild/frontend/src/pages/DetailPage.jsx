@@ -1,5 +1,5 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAnimeDetail } from '../hooks/useAnimeDetail';
+import { useParams, useNavigate } from "react-router-dom";
+import { useAnimeDetail } from "../hooks/useAnimeDetail";
 
 export function DetailPage() {
   const { id } = useParams();
@@ -21,9 +21,11 @@ export function DetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="text-red-600 text-lg">⚠️ {error || 'Anime not found'}</p>
+          <p className="text-red-600 text-lg">
+            ⚠️ {error || "Anime not found"}
+          </p>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             ← Back to Home
@@ -48,7 +50,7 @@ export function DetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <button
-        onClick={() => navigate('/')}
+        onClick={() => navigate("/")}
         className="m-4 px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
       >
         ← Back
@@ -60,7 +62,7 @@ export function DetailPage() {
             {/* Image */}
             <div className="md:col-span-1">
               <img
-                src={images?.jpg?.image_url || '/placeholder.jpg'}
+                src={images?.jpg?.image_url || "/placeholder.jpg"}
                 alt={title}
                 className="w-full rounded-lg shadow-md"
               />
@@ -73,19 +75,19 @@ export function DetailPage() {
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
                   <p className="text-gray-600 font-medium">Type</p>
-                  <p className="text-lg text-gray-900">{type || 'N/A'}</p>
+                  <p className="text-lg text-gray-900">{type || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-gray-600 font-medium">Episodes</p>
-                  <p className="text-lg text-gray-900">{episodes || '?'}</p>
+                  <p className="text-lg text-gray-900">{episodes || "?"}</p>
                 </div>
                 <div>
                   <p className="text-gray-600 font-medium">Status</p>
-                  <p className="text-lg text-gray-900">{status || 'N/A'}</p>
+                  <p className="text-lg text-gray-900">{status || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-gray-600 font-medium">Score</p>
-                  <p className="text-lg text-gray-900">⭐ {score || 'N/A'}</p>
+                  <p className="text-lg text-gray-900">⭐ {score || "N/A"}</p>
                 </div>
               </div>
 
@@ -117,7 +119,9 @@ export function DetailPage() {
           {/* Synopsis */}
           {synopsis && (
             <div className="bg-gray-50 px-8 py-6 border-t">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Synopsis</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Synopsis
+              </h2>
               <p className="text-gray-700 leading-relaxed">{synopsis}</p>
             </div>
           )}

@@ -8,30 +8,35 @@ bash setup.sh
 ```
 
 This will:
+
 1. Install backend dependencies (npm install)
 2. Install frontend dependencies (npm install)
 
 ## Running the App
 
 ### Terminal 1 - Start the Backend
+
 ```bash
 cd backend
 npm run dev
 ```
 
 Expected output:
+
 ```
 🚀 Backend running at http://localhost:5000
 📍 API: http://localhost:5000/api/anime
 ```
 
 ### Terminal 2 - Start the Frontend
+
 ```bash
 cd frontend
 npm run dev
 ```
 
 Expected output:
+
 ```
 VITE v5.0.0 ready in 234 ms
 
@@ -39,6 +44,7 @@ VITE v5.0.0 ready in 234 ms
 ```
 
 ### Open in Browser
+
 ```
 http://localhost:5173
 ```
@@ -53,15 +59,18 @@ http://localhost:5173
 ## Troubleshooting
 
 ### "Failed to fetch anime" error
+
 - Make sure backend is running on port 5000
 - Check that `http://localhost:5000/api/anime` is accessible
 - Try: `curl http://localhost:5000/health`
 
 ### "Cannot find module" error
+
 - Run `npm install` in that directory
 - Make sure you're in the right folder (backend or frontend)
 
 ### Port already in use
+
 - Backend won't start: Something is using port 5000
   ```bash
   lsof -i :5000  # Find what's using it
@@ -76,11 +85,13 @@ http://localhost:5173
 ## API Endpoints
 
 ### Search Anime
+
 ```
 GET http://localhost:5000/api/anime?q=demon%20slayer
 ```
 
 Response:
+
 ```json
 {
   "data": [
@@ -107,6 +118,7 @@ Response:
 ```
 
 ### Get Anime Details
+
 ```
 GET http://localhost:5000/api/anime/38480
 ```
@@ -152,6 +164,7 @@ fresh-rebuild/
 ## Code Flow
 
 ### Search Flow
+
 ```
 User types in SearchBar
     ↓
@@ -169,6 +182,7 @@ Results displayed as AnimeCard components
 ```
 
 ### Detail Flow
+
 ```
 User clicks AnimeCard
     ↓
@@ -188,6 +202,7 @@ Displays synopsis, genres, score, etc.
 ## What's Next?
 
 Ideas to extend this:
+
 - Add favorites/bookmarks (localStorage)
 - Add filters (type, status, genre)
 - Add pagination

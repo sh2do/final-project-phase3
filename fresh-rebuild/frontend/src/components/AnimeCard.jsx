@@ -8,7 +8,7 @@ export function AnimeCard({ anime, onClick }) {
     >
       <div className="h-64 overflow-hidden bg-gray-200">
         <img
-          src={images?.jpg?.image_url || '/placeholder.jpg'}
+          src={images?.jpg?.image_url || "/placeholder.jpg"}
           alt={title}
           className="w-full h-full object-cover hover:scale-105 transition-transform"
         />
@@ -21,10 +21,10 @@ export function AnimeCard({ anime, onClick }) {
 
         <div className="mt-3 space-y-1 text-sm text-gray-600">
           <p>
-            <span className="font-medium">Type:</span> {type || 'N/A'}
+            <span className="font-medium">Type:</span> {type || "N/A"}
           </p>
           <p>
-            <span className="font-medium">Episodes:</span> {episodes || '?'}
+            <span className="font-medium">Episodes:</span> {episodes || "?"}
           </p>
         </div>
       </div>

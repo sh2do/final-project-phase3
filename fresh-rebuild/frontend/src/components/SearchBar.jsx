@@ -1,13 +1,16 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 export function SearchBar({ onSearch }) {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
 
-  const handleChange = useCallback((e) => {
-    const value = e.target.value;
-    setQuery(value);
-    onSearch(value);
-  }, [onSearch]);
+  const handleChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+      setQuery(value);
+      onSearch(value);
+    },
+    [onSearch]
+  );
 
   return (
     <div className="w-full mb-8">

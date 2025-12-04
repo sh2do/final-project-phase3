@@ -55,12 +55,14 @@ npm run dev
 ## What's Used
 
 **Frontend:**
+
 - React 18
 - Vite
 - Tailwind CSS
 - React Router
 
 **Backend:**
+
 - Express
 - Jikan API (https://api.jikan.moe/v4/)
 - CORS enabled

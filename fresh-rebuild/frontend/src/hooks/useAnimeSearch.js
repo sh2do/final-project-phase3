@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = "http://localhost:5000/api";
 
 export function useAnimeSearch() {
   const [results, setResults] = useState([]);
@@ -17,14 +17,28 @@ export function useAnimeSearch() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/anime?q=${encodeURIComponent(query)}`);
-      if (!response.ok) throw new Error('Failed to fetch anime');
+      console.log(`🔍 Frontend: Searching for "${query}"`);
+      const url = `${API_URL}/anime?q=${encodeURIComponent(query)}`;
+      console.log(`📡 Fetching from: ${url}`);
+      
+      const response = await fetch(url);
+      console.log(`📥 Response status: ${response.status}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
 
       const data = await response.json();
+      console.log(`✅ Got ${data.data?.length || 0} results`);
       setResults(data.data || []);
+      
+      if (!data.data || data.data.length === 0) {
+        setError("No anime found. Try a different search.");
+      }
     } catch (err) {
-      setError(err.message);
-      console.error('Search error:', err);
+      console.error("❌ Search error:", err);
+      setError(`Failed to fetch: ${err.message}`);
     } finally {
       setLoading(false);
     }

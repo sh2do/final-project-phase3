@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = "http://localhost:5000/api";
 
 export function useAnimeDetail(id) {
   const [anime, setAnime] = useState(null);
@@ -15,14 +15,22 @@ export function useAnimeDetail(id) {
       setError(null);
 
       try {
-        const response = await fetch(`${API_URL}/anime/${id}`);
-        if (!response.ok) throw new Error('Failed to fetch anime details');
+        console.log(`🎬 Frontend: Fetching anime ${id}`);
+        const url = `${API_URL}/anime/${id}`;
+        const response = await fetch(url);
+        console.log(`📥 Response status: ${response.status}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
 
         const data = await response.json();
+        console.log(`✅ Got anime: ${data.data?.title}`);
         setAnime(data.data);
       } catch (err) {
-        setError(err.message);
-        console.error('Detail error:', err);
+        console.error("❌ Detail error:", err);
+        setError(`Failed to fetch: ${err.message}`);
       } finally {
         setLoading(false);
       }

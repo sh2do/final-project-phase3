@@ -1,7 +1,7 @@
-import { useNavigate } from 'react-router-dom';
-import { useAnimeSearch } from '../hooks/useAnimeSearch';
-import { SearchBar } from '../components/SearchBar';
-import { AnimeCard } from '../components/AnimeCard';
+import { useNavigate } from "react-router-dom";
+import { useAnimeSearch } from "../hooks/useAnimeSearch";
+import { SearchBar } from "../components/SearchBar";
+import { AnimeCard } from "../components/AnimeCard";
 
 export function HomePage() {
   const { results, loading, error, search } = useAnimeSearch();
@@ -12,7 +12,9 @@ export function HomePage() {
       <header className="bg-blue-600 text-white py-6 shadow-md">
         <div className="max-w-6xl mx-auto px-4">
           <h1 className="text-4xl font-bold">🎬 Anime Tracker</h1>
-          <p className="text-blue-100 mt-1">Discover and explore your favorite anime</p>
+          <p className="text-blue-100 mt-1">
+            Discover and explore your favorite anime
+          </p>
         </div>
       </header>
 
@@ -35,7 +37,9 @@ export function HomePage() {
         {results.length === 0 && !loading && (
           <div className="text-center py-12">
             <p className="text-gray-600 text-lg">
-              {results.length === 0 && !error ? 'Search for an anime to get started' : 'No anime found'}
+              {results.length === 0 && !error
+                ? "Search for an anime to get started"
+                : "No anime found"}
             </p>
           </div>
         )}
