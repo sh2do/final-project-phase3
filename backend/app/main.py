@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.config import settings
-from app.routers import anime_router, users_router, collection_router
+from app.routers import anime_router, users_router, collection_router, anilist_router
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -27,6 +27,7 @@ app.add_middleware(
 app.include_router(anime_router)
 app.include_router(users_router)
 app.include_router(collection_router)
+app.include_router(anilist_router)
 
 
 @app.get("/", tags=["root"])

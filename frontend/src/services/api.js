@@ -22,6 +22,20 @@ export const animeAPI = {
     apiClient.patch(`/anime/${animeId}`, animeData),
 
   delete: (animeId) => apiClient.delete(`/anime/${animeId}`),
+
+  // AniList API endpoints
+  searchAniList: (query, page = 1) =>
+    apiClient.get("/api/anilist/search", {
+      params: { q: query, page, per_page: 10 },
+    }),
+
+  getTrendingAnime: (page = 1) =>
+    apiClient.get("/api/anilist/trending", { params: { page, per_page: 10 } }),
+
+  getAniListAnime: (anilistId) => apiClient.get(`/api/anilist/${anilistId}`),
+
+  saveAniListAnime: (anilistId) =>
+    apiClient.post(`/api/anilist/save/${anilistId}`),
 };
 
 // User endpoints

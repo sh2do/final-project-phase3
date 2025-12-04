@@ -3,6 +3,8 @@ import HomePage from "./pages/HomePage";
 import AnimeDetailsPage from "./pages/AnimeDetailsPage";
 import MyCollectionPage from "./pages/MyCollectionPage";
 import AddToCollectionPage from "./pages/AddToCollectionPage";
+import TrendingPage from "./pages/TrendingPage";
+import AniListSearch from "./components/AniListSearch";
 
 function App() {
   return (
@@ -19,6 +21,18 @@ function App() {
                 <Link to="/" className="text-gray-600 hover:text-gray-900">
                   Browse
                 </Link>
+                <Link
+                  to="/trending"
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Trending
+                </Link>
+                <Link
+                  to="/search"
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Search
+                </Link>
                 <Link to="/add" className="text-gray-600 hover:text-gray-900">
                   Add Anime
                 </Link>
@@ -33,6 +47,8 @@ function App() {
           <Route path="/anime/:animeId" element={<AnimeDetailsPage />} />
           <Route path="/collection/:userId" element={<MyCollectionPage />} />
           <Route path="/add" element={<AddToCollectionPage />} />
+          <Route path="/trending" element={<TrendingPage />} />
+          <Route path="/search" element={<AniListSearch />} />
         </Routes>
       </div>
     </Router>
