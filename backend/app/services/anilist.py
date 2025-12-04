@@ -1,3 +1,56 @@
+"""AniList GraphQL client (minimal).
+This service provides simple search and get by AniList id.
+"""
+import httpx
+from typing import Optional
+
+GRAPHQL_URL = "https://graphql.anilist.co"
+
+SEARCH_QUERY = """
+query ($query: String, $page: Int) {
+  Page(page: $page, perPage: 10) {
+    media(search: $query, type: ANIME) {
+      id
+      idMal
+      title { romaji english }
+      description
+      episodes
+      coverImage { large }
+      averageScore
+    }
+  }
+}
+"""
+
+DETAIL_QUERY = """
+query ($id: Int) {
+  Media(id: $id, type: ANIME) {
+    id
+    idMal
+    title { romaji english }
+    description
+    episodes
+    coverImage { large }
+    averageScore
+  }
+}
+"""
+
+
+async def search_anilist(query: str, page: int = 1):
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        r = await client.post(GRAPHQL_URL, json={"query": SEARCH_QUERY, "variables": {"query": query, "page": page}})
+        r.raise_for_status()
+        data = r.json()
+        return data.get("data", {}).get("Page", {}).get("media", [])
+
+
+async def get_anilist(id: int):
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        r = await client.post(GRAPHQL_URL, json={"query": DETAIL_QUERY, "variables": {"id": id}})
+        r.raise_for_status()
+        data = r.json()
+        return data.get("data", {}).get("Media")
 """
 AniList GraphQL API Service
 Integrates with AniList API to fetch anime data

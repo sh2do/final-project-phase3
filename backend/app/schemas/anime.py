@@ -1,5 +1,20 @@
 from pydantic import BaseModel
 from typing import Optional
+
+
+class AnimeOut(BaseModel):
+    id: int
+    title: Optional[str]
+    synopsis: Optional[str]
+    episodes: Optional[int]
+    score: Optional[float]
+    image_url: Optional[str]
+    source: Optional[str] = None  # 'anilist', 'jikan', 'mock'
+
+    class Config:
+        orm_mode = True
+from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 
 

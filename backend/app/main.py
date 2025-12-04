@@ -1,51 +1,47 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import engine, Base
-from app.config import settings
-from app.routers import anime_router, users_router, collection_router, anilist_router
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.middleware import SlowAPIMiddleware
 
-# Create tables
-Base.metadata.create_all(bind=engine)
-
-# Initialize FastAPI app
-app = FastAPI(
-    title=settings.API_TITLE,
-    version=settings.API_VERSION,
-    description="An API for tracking your anime collection",
-)
-
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Include routers
-app.include_router(anime_router)
-app.include_router(users_router)
-app.include_router(collection_router)
-app.include_router(anilist_router)
+from app.core.config import settings
+from app.database import init_db
+from app.routes import auth as auth_router
+from app.routes import anime as anime_router
+from app.routes import collection as collection_router
 
 
-@app.get("/", tags=["root"])
-def read_root():
-    """Root endpoint"""
-    return {
-        "message": "Welcome to Anime Collection Tracker API",
-        "version": settings.API_VERSION,
-        "docs": "/docs",
-    }
+def create_app() -> FastAPI:
+    app = FastAPI(title=settings.APP_NAME, version=settings.API_VERSION)
+
+    # Rate limiter
+    limiter = Limiter(key_func=get_remote_address)
+    app.state.limiter = limiter
+    app.add_middleware(SlowAPIMiddleware)
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.ALLOWED_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # include routers
+    app.include_router(auth_router.router)
+    app.include_router(anime_router.router)
+    app.include_router(collection_router.router)
+
+    @app.on_event("startup")
+    def on_startup():
+        init_db()
+
+    @app.get("/health")
+    def health():
+        return {"status": "ok"}
+
+    return app
 
 
-@app.get("/health", tags=["health"])
-def health_check():
-    """Health check endpoint"""
-    return {"status": "ok", "environment": settings.ENVIRONMENT}
+app = create_app()
 
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=settings.DEBUG)

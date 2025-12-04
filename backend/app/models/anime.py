@@ -1,3 +1,15 @@
+from typing import Optional
+from sqlmodel import SQLModel, Field
+
+
+class Anime(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    external_id: Optional[int] = None
+    title: Optional[str] = None
+    synopsis: Optional[str] = None
+    episodes: Optional[int] = None
+    score: Optional[float] = None
+    image_url: Optional[str] = None
 from sqlalchemy import Column, Integer, String, Text, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
