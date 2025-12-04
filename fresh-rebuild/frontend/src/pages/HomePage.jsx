@@ -1,20 +1,40 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAnimeSearch } from "../hooks/useAnimeSearch";
 import { SearchBar } from "../components/SearchBar";
 import { AnimeCard } from "../components/AnimeCard";
+import { Toast } from "../components/Toast";
+const API_URL = "http://localhost:5001/api";
 
 export function HomePage() {
   const { results, loading, error, search } = useAnimeSearch();
   const navigate = useNavigate();
+  const [toast, setToast] = useState(null);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-blue-600 text-white py-6 shadow-md">
+    <div className="min-h-screen bg-gray-900">
+      <header className="bg-gray-800 text-white py-8 shadow-lg border-b-4 border-purple-600">
         <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-4xl font-bold">🎬 Anime Tracker</h1>
-          <p className="text-blue-100 mt-1">
+          <h1 className="text-5xl font-bold text-purple-400">
+            🎬 Anime Tracker
+          </h1>
+          <p className="text-gray-300 mt-2">
             Discover and explore your favorite anime
           </p>
+          <div className="mt-4 flex gap-2">
+            <button
+              onClick={() => navigate("/add")}
+              className="bg-purple-600 text-white font-semibold px-4 py-2 rounded hover:bg-purple-700 transition shadow-lg"
+            >
+              + Add Anime
+            </button>
+            <button
+              onClick={() => navigate("/collection")}
+              className="bg-gray-700 text-purple-400 font-semibold px-4 py-2 rounded hover:bg-gray-600 transition shadow-lg border border-purple-600"
+            >
+              💾 Collection
+            </button>
+          </div>
         </div>
       </header>
 
@@ -22,7 +42,7 @@ export function HomePage() {
         <SearchBar onSearch={search} />
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="bg-red-900 border border-red-600 text-red-200 px-4 py-3 rounded mb-6">
             ⚠️ {error}
           </div>
         )}
@@ -51,11 +71,39 @@ export function HomePage() {
                 key={anime.mal_id}
                 anime={anime}
                 onClick={(id) => navigate(`/anime/${id}`)}
+                onSave={async (item) => {
+                  try {
+                    const res = await fetch(`${API_URL}/collection`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ mal_id: item.mal_id }),
+                    });
+                    if (!res.ok) {
+                      const err = await res.json();
+                      throw new Error(err.error || "Failed to save");
+                    }
+                    setToast({
+                      message: `✓ Saved: ${item.title}`,
+                      type: "success",
+                    });
+                  } catch (err) {
+                    setToast({
+                      message: `✗ Save failed: ${err.message}`,
+                      type: "error",
+                    });
+                  }
+                }}
               />
             ))}
           </div>
         )}
       </main>
+
+      <Toast
+        message={toast?.message}
+        type={toast?.type}
+        onClose={() => setToast(null)}
+      />
     </div>
   );
 }

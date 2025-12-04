@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const animeRoutes = require("./routes/anime");
+const collectionRoutes = require("./routes/collection");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api", animeRoutes);
+app.use("/api/collection", collectionRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

@@ -1,5 +1,9 @@
 const { searchAnime, getAnimeById } = require("../utils/jikan");
-const { searchMockAnime, getMockAnimeById } = require("../services/mockAnime");
+const {
+  searchMockAnime,
+  getMockAnimeById,
+  addMockAnime,
+} = require("../services/mockAnime");
 
 // Toggle between mock (fast) and real (slow) API
 // Set to true for instant results, false for real Jikan API
@@ -74,5 +78,21 @@ exports.getAnimeById = async (req, res) => {
       error: error.message,
       details: "Check backend console for more info",
     });
+  }
+};
+
+// Add custom anime to mock database
+exports.addCustomAnime = async (req, res) => {
+  try {
+    const payload = req.body;
+    if (!payload || !payload.title) {
+      return res.status(400).json({ error: "Title is required to add anime" });
+    }
+
+    const added = addMockAnime(payload);
+    res.status(201).json({ data: added });
+  } catch (error) {
+    console.error("🚨 Add anime error:", error.message);
+    res.status(500).json({ error: "Failed to add anime" });
   }
 };

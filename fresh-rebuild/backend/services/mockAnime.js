@@ -282,8 +282,35 @@ function getMockAnimeById(id) {
   return MOCK_ANIME_DATABASE.find((anime) => anime.mal_id === parseInt(id));
 }
 
+// Add a custom anime to the mock database. Generates a unique negative mal_id.
+function addMockAnime(payload) {
+  const id = Date.now() * -1; // negative unique id
+  const newAnime = {
+    mal_id: id,
+    title: payload.title || "Untitled",
+    type: payload.type || "TV",
+    episodes: payload.episodes || 0,
+    status: payload.status || "Unknown",
+    aired: payload.aired || { from: null, to: null },
+    score: payload.score || null,
+    synopsis: payload.synopsis || "",
+    genres: payload.genres || [],
+    images: payload.images || {
+      jpg: {
+        image_url: payload.image_url || "/placeholder.jpg",
+        small_image_url: payload.image_url || "/placeholder.jpg",
+        large_image_url: payload.image_url || "/placeholder.jpg",
+      },
+    },
+  };
+
+  MOCK_ANIME_DATABASE.unshift(newAnime);
+  return newAnime;
+}
+
 module.exports = {
   MOCK_ANIME_DATABASE,
   searchMockAnime,
   getMockAnimeById,
+  addMockAnime,
 };
